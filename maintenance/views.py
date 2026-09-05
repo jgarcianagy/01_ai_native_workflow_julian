@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, redirect, render
 
-from maintenance.forms import TaskCreateForm, TechnicianAssignForm
+from maintenance.forms import StatusUpdateForm, TaskCreateForm, TechnicianAssignForm
 from maintenance.models import MaintenanceTask
 
 
@@ -15,17 +15,29 @@ def task_detail(request, pk):
     task = get_object_or_404(MaintenanceTask, pk=pk)
 
     if request.method == "POST":
-        form = TechnicianAssignForm(request.POST, instance=task)
-        if form.is_valid():
-            form.save()
-            return redirect("task_detail", pk=task.pk)
+        if "assign_technician" in request.POST:
+            assign_form = TechnicianAssignForm(request.POST, instance=task)
+            status_form = StatusUpdateForm(instance=task)
+            if assign_form.is_valid():
+                assign_form.save()
+                return redirect("task_detail", pk=task.pk)
+        elif "update_status" in request.POST:
+            status_form = StatusUpdateForm(request.POST, request.FILES, instance=task)
+            assign_form = TechnicianAssignForm(instance=task)
+            if status_form.is_valid():
+                status_form.save()
+                return redirect("task_detail", pk=task.pk)
+        else:
+            assign_form = TechnicianAssignForm(instance=task)
+            status_form = StatusUpdateForm(instance=task)
     else:
-        form = TechnicianAssignForm(instance=task)
+        assign_form = TechnicianAssignForm(instance=task)
+        status_form = StatusUpdateForm(instance=task)
 
     return render(
         request,
         "maintenance/task_detail.html",
-        {"task": task, "form": form},
+        {"task": task, "assign_form": assign_form, "status_form": status_form},
     )
 
 

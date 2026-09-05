@@ -18,3 +18,9 @@ class TechnicianAssignForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields["technician"].required = False
         self.fields["technician"].empty_label = "Unassigned"
+
+
+class StatusUpdateForm(forms.ModelForm):
+    class Meta:
+        model = MaintenanceTask
+        fields = ["status", "completion_photo"]

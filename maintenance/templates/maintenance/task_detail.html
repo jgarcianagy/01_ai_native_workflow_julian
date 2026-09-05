@@ -40,12 +40,30 @@
         {% csrf_token %}
 
         <div>
-            {{ form.technician.label_tag }}
-            {{ form.technician }}
-            {{ form.technician.errors }}
+            {{ assign_form.technician.label_tag }}
+            {{ assign_form.technician }}
+            {{ assign_form.technician.errors }}
         </div>
 
-        <button type="submit">Assign</button>
+        <button type="submit" name="assign_technician" value="1">Assign</button>
+    </form>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div>
+            {{ status_form.status.label_tag }}
+            {{ status_form.status }}
+            {{ status_form.status.errors }}
+        </div>
+
+        <div>
+            {{ status_form.completion_photo.label_tag }}
+            {{ status_form.completion_photo }}
+            {{ status_form.completion_photo.errors }}
+        </div>
+
+        <button type="submit" name="update_status" value="1">Update status</button>
     </form>
 </body>
 </html>
