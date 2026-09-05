@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hotel Maintenance Tracker</title>
+</head>
+<body>
+    <h1>Hotel Maintenance Tracker</h1>
+
+    {% if tasks %}
+        <ul>
+            {% for task in tasks %}
+                <li>
+                    <span>{{ task.title }}</span>
+                    -
+                    <span>{{ task.get_status_display }}</span>
+                    -
+                    <span>{{ task.get_priority_display }}</span>
+                    -
+                    <span>{{ task.location }}</span>
+                    -
+                    <span>
+                        {% if task.technician %}
+                            {{ task.technician.name }}
+                        {% else %}
+                            Unassigned
+                        {% endif %}
+                    </span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No tasks yet.</p>
+    {% endif %}
+</body>
+</html>

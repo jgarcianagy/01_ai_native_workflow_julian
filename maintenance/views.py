@@ -1,11 +1,14 @@
-from django.http import HttpResponse
 from django.shortcuts import render
 
 from maintenance.forms import TaskCreateForm
+from maintenance.models import MaintenanceTask
 
 
 def home(request):
-    return HttpResponse("Hotel Maintenance Tracker")
+    tasks = MaintenanceTask.objects.select_related("technician").order_by(
+        "-created_at"
+    )
+    return render(request, "maintenance/home.html", {"tasks": tasks})
 
 
 def task_create(request):
