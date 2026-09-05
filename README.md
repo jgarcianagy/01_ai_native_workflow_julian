@@ -75,6 +75,50 @@ server and `manage.py migrate` always use the real Postgres config in
   `Technician` data, etc.)
 - `docker compose down` — stop local Postgres
 
+## Production settings
+
+`config/settings_production.py` exists so this app cannot accidentally run
+with development defaults in a production-like environment. It follows the
+same override pattern as `config/settings_test.py`: `from .settings import *`,
+then overrides only what production needs.
+
+To point Django at it, set:
+
+```
+DJANGO_SETTINGS_MODULE=config.settings_production
+```
+
+Under that module:
+
+- `DEBUG` is hardcoded to `False` — it is not read from the environment
+  there, so no env var can re-enable it.
+- `SECRET_KEY` is read via `env('DJANGO_SECRET_KEY')` with **no default**.
+  Unlike `config/settings.py` (which falls back to an insecure hardcoded dev
+  key), a production deployment must set `DJANGO_SECRET_KEY` explicitly, or
+  Django raises `ImproperlyConfigured` at startup instead of silently using
+  an insecure key.
+- `ALLOWED_HOSTS` likewise has no working default for production use — set
+  it explicitly to the real domain(s)/host(s) the deployment is served from.
+
+`.env.production.example` documents every env var this settings module
+requires or reads (`DJANGO_SECRET_KEY`, `ALLOWED_HOSTS`, and the `DB_*`
+values) with placeholder, non-functional values — it is intentionally
+distinct from the dev-oriented `.env.example`.
+
+**This settings module only covers Django's own settings.** It does not make
+the app deployable end-to-end. Still unresolved, and tracked in
+[#20](https://github.com/juliangarcianagyabi/01_ai_native_workflow_julian/issues/20)
+(which requires dependency sign-off first, per this repo's rule on adding
+`pyproject.toml` dependencies):
+
+- A production WSGI server (e.g. gunicorn).
+- Production static-file serving (e.g. whitenoise).
+- A containerized `web` service / `Dockerfile` (today `docker-compose.yml`
+  only defines the `db` service).
+- The exact containerized invocation of the recurring-task cron command
+  (see "Scheduling the recurring task command" below).
+- Media (uploaded photo) persistence across redeploys/restarts.
+
 ## Scheduling the recurring task command
 
 `manage.py generate_recurring_tasks` (see `maintenance/management/commands/generate_recurring_tasks.py`)
