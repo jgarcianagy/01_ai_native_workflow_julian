@@ -6,3 +6,31 @@ class Technician(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class MaintenanceTask(models.Model):
+    class Status(models.TextChoices):
+        OPEN = "OPEN", "Open"
+        IN_PROGRESS = "IN_PROGRESS", "In Progress"
+        DONE = "DONE", "Done"
+
+    class Priority(models.TextChoices):
+        URGENT = "URGENT", "Urgent"
+        NORMAL = "NORMAL", "Normal"
+        LOW = "LOW", "Low"
+
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    location = models.CharField(max_length=255)
+    status = models.CharField(
+        max_length=20, choices=Status.choices, default=Status.OPEN
+    )
+    priority = models.CharField(max_length=20, choices=Priority.choices)
+    technician = models.ForeignKey(
+        "Technician", on_delete=models.SET_NULL, null=True, blank=True
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title
