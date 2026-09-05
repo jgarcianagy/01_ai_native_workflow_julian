@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ task.title }} - Hotel Maintenance Tracker</title>
+</head>
+<body>
+    <h1>{{ task.title }}</h1>
+
+    <p>{{ task.description }}</p>
+
+    <ul>
+        <li>Location: {{ task.location }}</li>
+        <li>Status: {{ task.get_status_display }}</li>
+        <li>Priority: {{ task.get_priority_display }}</li>
+        <li>
+            Technician:
+            {% if task.technician %}
+                {{ task.technician.name }}
+            {% else %}
+                Unassigned
+            {% endif %}
+        </li>
+        <li>Created: {{ task.created_at }}</li>
+        <li>Last updated: {{ task.updated_at }}</li>
+    </ul>
+
+    <div>
+        <p>Issue photo:</p>
+        <img src="{{ task.issue_photo.url }}" alt="Issue photo for {{ task.title }}">
+    </div>
+
+    {% if task.completion_photo %}
+        <div>
+            <p>Completion photo:</p>
+            <img src="{{ task.completion_photo.url }}" alt="Completion photo for {{ task.title }}">
+        </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div>
+            {{ form.technician.label_tag }}
+            {{ form.technician }}
+            {{ form.technician.errors }}
+        </div>
+
+        <button type="submit">Assign</button>
+    </form>
+</body>
+</html>
