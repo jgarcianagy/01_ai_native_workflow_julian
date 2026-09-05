@@ -1,0 +1,21 @@
+[project]
+name = "hotel-maintenance-tracker"
+version = "0.1.0"
+description = "Hotel Maintenance Tracker"
+requires-python = ">=3.12"
+dependencies = [
+    "django>=5.0,<6.0",
+    "psycopg[binary]>=3.1",
+    "django-environ>=0.11",
+    "pillow>=10.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-django>=4.8",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings"
+python_files = ["test_*.py", "tests.py"]

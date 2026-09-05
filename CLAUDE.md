@@ -7,6 +7,8 @@ source of truth.
 
 ## Documents
 - `_docs/process.md` - how work is organized
+- `_docs/task-template.md` - template used to groom a task before implementation
+- `_docs/team/pm.md` - PM role: grooms tasks into the template before anyone implements them
 
 ## Stack
 
@@ -29,9 +31,19 @@ historical reporting, calendar-date recurrence, external contractors.
 
 ## Commands
 
-- `uv sync` - install dependencies
+Setup (first time, or after pulling changes to `docker-compose.yml`/`pyproject.toml`):
+- `uv sync` - install dependencies into `.venv`
+- `cp .env.example .env` - local env vars (DB credentials, secret key); edit if needed
+- `docker compose up -d` - start local Postgres (see `docker-compose.yml`)
+- `uv run python manage.py migrate` - apply migrations
+
+Day to day:
+- `uv run python manage.py runserver` - run the dev server
 - `uv run pytest` - the whole suite
 - `uv run pytest tests/test_home.py` - one test file
+- `uv run python manage.py makemigrations` - after changing models
+- `uv run python manage.py createsuperuser` - admin access (for seeding `Technician` data, etc.)
+- `docker compose down` - stop local Postgres
 
 ## Rules
 
