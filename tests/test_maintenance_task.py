@@ -1,7 +1,19 @@
+import io
+
 import pytest
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import SimpleUploadedFile
+from PIL import Image
 
 from maintenance.models import MaintenanceTask, Technician
+
+
+def make_test_image(name="issue.png"):
+    """Build a real, minimal in-memory PNG so ImageField validation passes."""
+    buffer = io.BytesIO()
+    Image.new("RGB", (1, 1), color="red").save(buffer, format="PNG")
+    buffer.seek(0)
+    return SimpleUploadedFile(name, buffer.read(), content_type="image/png")
 
 
 @pytest.mark.django_db
@@ -12,6 +24,7 @@ def test_create_task_with_all_required_fields_and_no_technician():
         location="Room 204",
         status=MaintenanceTask.Status.OPEN,
         priority=MaintenanceTask.Priority.NORMAL,
+        issue_photo=make_test_image(),
     )
 
     assert task.pk is not None
@@ -29,6 +42,7 @@ def test_str_returns_title():
         description="Flickering light in 3rd floor hallway.",
         location="3rd Floor Hallway",
         priority=MaintenanceTask.Priority.LOW,
+        issue_photo=make_test_image(),
     )
 
     assert str(task) == "Replace hallway light"
@@ -43,6 +57,7 @@ def test_deleting_assigned_technician_sets_task_technician_to_none():
         location="Room 101",
         priority=MaintenanceTask.Priority.URGENT,
         technician=technician,
+        issue_photo=make_test_image(),
     )
 
     technician.delete()
@@ -60,6 +75,7 @@ def test_full_clean_rejects_invalid_status():
         location="Room 305",
         status="bogus",
         priority=MaintenanceTask.Priority.NORMAL,
+        issue_photo=make_test_image(),
     )
 
     with pytest.raises(ValidationError):
@@ -74,7 +90,37 @@ def test_full_clean_rejects_invalid_priority():
         location="Room 305",
         status=MaintenanceTask.Status.OPEN,
         priority="bogus",
+        issue_photo=make_test_image(),
     )
 
     with pytest.raises(ValidationError):
         task.full_clean()
+
+
+@pytest.mark.django_db
+def test_full_clean_rejects_missing_issue_photo():
+    task = MaintenanceTask(
+        title="Fix window",
+        description="Window latch is broken in room 305.",
+        location="Room 305",
+        status=MaintenanceTask.Status.OPEN,
+        priority=MaintenanceTask.Priority.NORMAL,
+    )
+
+    with pytest.raises(ValidationError):
+        task.full_clean()
+
+
+@pytest.mark.django_db
+def test_task_can_be_created_without_completion_photo():
+    task = MaintenanceTask.objects.create(
+        title="Fix leaky faucet",
+        description="Faucet in room 204 bathroom is dripping constantly.",
+        location="Room 204",
+        status=MaintenanceTask.Status.OPEN,
+        priority=MaintenanceTask.Priority.NORMAL,
+        issue_photo=make_test_image(),
+    )
+
+    assert task.pk is not None
+    assert not task.completion_photo

@@ -22,6 +22,10 @@ class MaintenanceTask(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     location = models.CharField(max_length=255)
+    issue_photo = models.ImageField(upload_to="task_photos/issue/")
+    completion_photo = models.ImageField(
+        upload_to="task_photos/completion/", blank=True, null=True
+    )
     status = models.CharField(
         max_length=20, choices=Status.choices, default=Status.OPEN
     )
