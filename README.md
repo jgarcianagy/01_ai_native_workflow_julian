@@ -32,9 +32,19 @@ docker compose up -d
 # 4. Apply database migrations
 uv run python manage.py migrate
 
+# 4b. (Optional) Populate local dev data — DESTRUCTIVE, see warning below
+uv run python manage.py seed_data
+
 # 5. Run the dev server
 uv run python manage.py runserver
 ```
+
+`manage.py seed_data` is optional and for local development only. **It is
+destructive**: it deletes all existing `Technician`, `MaintenanceTask`, and
+`RecurrenceRule` rows before recreating a fixed seed set (a handful of
+technicians, tasks covering every status/priority/assignment combination,
+and a recurrence rule), so you can open the dashboard immediately without
+creating data by hand. Never run it against a production database.
 
 The app will be available at `http://localhost:8000/`.
 
