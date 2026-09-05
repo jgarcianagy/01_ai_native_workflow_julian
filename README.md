@@ -3,6 +3,44 @@
 A tight, no-frills internal tool for a hotel's maintenance workflow (Django +
 Postgres monolith). See `_docs/plan.md` for full product scope.
 
+## What this is
+
+A shared desktop dashboard a hotel's front desk, management, and in-house
+maintenance team use to track repair and upkeep work — nothing more. There
+are no user accounts, no logins, and no roles: it's one shared screen, and
+staff identify themselves by picking their name on a task rather than
+signing in.
+
+### How a task flows
+
+1. **Creation** — Only front desk/management can create a task. Staff who
+   spot an issue report it verbally/in person; front desk or management logs
+   it in the system. Every task requires a title, description, an issue
+   photo, priority (Urgent / Normal / Low), and location (room number/area).
+2. **Assignment** — A manager manually assigns the task to one of the
+   in-house technicians. There is no self-claiming and no auto-assignment.
+3. **Work** — The assigned technician moves the task from Open to In
+   Progress, then to Done.
+4. **Completion** — A task can only be marked Done once a completion photo
+   is attached, proving the fix. This is enforced at the model level
+   (`MaintenanceTask.clean()`), not just in the UI.
+
+### Recurring / preventive maintenance
+
+Alongside one-off reactive (break-fix) tasks, a `RecurrenceRule` can define
+fixed-interval preventive maintenance (e.g. every 7 / 30 / 90 days). A daily
+job (`manage.py generate_recurring_tasks`, scheduled via OS-level cron — see
+"Scheduling the recurring task command" below) auto-creates a new task each
+time a rule comes due. There is no calendar-date scheduling in v1 (e.g. "every
+Monday" or "on the 1st of the month" is not supported).
+
+### What's deliberately out of scope for v1
+
+No notifications (email/push), no historical reporting/analytics/charts, and
+no mobile-specific access — the dashboard only shows current tasks by status.
+These, along with user accounts/login and calendar-date recurrence, are
+tracked as natural v2 additions in `_docs/plan.md`.
+
 ## Prerequisites
 
 Before you start, make sure you have:
