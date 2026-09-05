@@ -64,3 +64,70 @@ server and `manage.py migrate` always use the real Postgres config in
 - `uv run python manage.py createsuperuser` — admin access (for seeding
   `Technician` data, etc.)
 - `docker compose down` — stop local Postgres
+
+## Scheduling the recurring task command
+
+`manage.py generate_recurring_tasks` (see `maintenance/management/commands/generate_recurring_tasks.py`)
+needs to run once a day so recurring/preventive maintenance tasks get created
+automatically instead of relying on someone to trigger it by hand. This is
+done with a plain OS-level cron entry (a systemd timer works equally well as
+an alternative) — **no new Python dependency is added for this**.
+`django-crontab`, Celery (+ beat), and `APScheduler` were all considered and
+rejected for v1 because each would require adding a new `pyproject.toml`
+dependency, which per this repo's rule ("Dependencies are added in
+`pyproject.toml`. Do not add one without asking") needs sign-off first. If
+plain cron turns out to be insufficient for the eventual deployment target
+(e.g. a host with no cron access), that's a new issue to open and get
+sign-off on — not something to fold in here.
+
+For a bare-host deployment, the crontab line is:
+
+```
+0 3 * * * cd /path/to/app && uv run python manage.py generate_recurring_tasks >> /var/log/hotel-maintenance/recurring-tasks.log 2>&1
+```
+
+This runs the exact same command documented above and elsewhere in this
+README — `uv run python manage.py generate_recurring_tasks` — with no extra
+flags, so there's no drift between what's documented and what cron actually
+invokes.
+
+`docker-compose.yml` today only defines a `db` service; there is no `web`/
+`app` service to run this against yet (that's a separate deployment/
+production-setup concern). So this doc intentionally does not invent a
+`docker compose run web ...` line against a service that doesn't exist. The
+exact containerized invocation (service name, working directory, log path)
+depends on that future production setup and should be reconciled once it
+lands — until then, the command above is the one to run, whether by hand,
+via host cron, or adapted into whatever process manager the eventual
+container setup uses.
+
+**Verifying the job ran**, without any new logging/notification
+infrastructure:
+
+- Check the log file the cron line redirects to
+  (`/var/log/hotel-maintenance/recurring-tasks.log` in the example above) for
+  stdout/stderr, including the command's own `Created N task(s).` line.
+- And/or spot-check that a `RecurrenceRule`'s `last_generated_date` advanced
+  to today, e.g. via `uv run python manage.py shell`:
+
+  ```python
+  from maintenance.models import RecurrenceRule
+  RecurrenceRule.objects.values_list("title", "last_generated_date")
+  ```
+
+**Overlapping and missed runs are already safe, with no new locking added
+here:**
+
+- Running the command twice on the same day (e.g. a manual run plus the
+  scheduled one landing the same day) does not create duplicate tasks —
+  `generate_recurring_tasks` is already idempotent per day, because it only
+  creates a task for a rule when `last_generated_date` shows the rule is due,
+  and immediately advances `last_generated_date` to today. This issue adds
+  only the trigger (cron); it does not add any new mutex/locking, and none is
+  needed.
+- A missed run (e.g. the host is down overnight) is already tolerated: a rule
+  simply stays due until the command next runs, and `last_generated_date` is
+  set to today rather than incremented by the interval, so there's no
+  duplicate backlog to catch up on. That catch-up-without-duplicating-history
+  behavior belongs to `generate_recurring_tasks` itself, not to the
+  scheduling mechanism documented here.
