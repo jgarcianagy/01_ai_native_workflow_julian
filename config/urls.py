@@ -19,11 +19,12 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 
-from maintenance.views import home
+from maintenance.views import home, task_create
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home, name='home'),
+    path('create/', task_create, name='task_create'),
 ]
 
 if settings.DEBUG:
