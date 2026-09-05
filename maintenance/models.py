@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
 
 
@@ -51,3 +52,17 @@ class MaintenanceTask(models.Model):
                     )
                 }
             )
+
+
+class RecurrenceRule(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    location = models.CharField(max_length=255)
+    priority = models.CharField(
+        max_length=20, choices=MaintenanceTask.Priority.choices
+    )
+    interval_days = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    last_generated_date = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return self.title
