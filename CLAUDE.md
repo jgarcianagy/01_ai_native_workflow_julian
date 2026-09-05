@@ -1,14 +1,17 @@
 # Hotel Maintenance Tracker
 
 A tight, no-frills internal tool for a hotel's maintenance workflow. Full product
-scope lives in `_docs/plan.md`; the v1 build backlog lives in `_docs/tasks.md`.
-Read both before making product decisions — this file is a summary, not the
-source of truth.
+scope lives in `_docs/plan.md`; the v1 build backlog is tracked as GitHub issues
+(#1-18). Read `_docs/plan.md` before making product decisions — this file is a
+summary, not the source of truth.
 
 ## Documents
-- `_docs/process.md` - how work is organized
+- `_docs/process.md` - how work is organized (roles, lifecycle)
 - `_docs/task-template.md` - template used to groom a task before implementation
-- `_docs/team/pm.md` - PM role: grooms tasks into the template before anyone implements them
+- `_docs/team/pm.md` - PM role: grooms an issue into the template before anyone implements it
+- `_docs/team/software-engineer.md` - Engineer role: implements one groomed issue at a time
+- `_docs/team/qa-engineer.md` - QA role: verifies a finished issue against its acceptance criteria
+- `_docs/outdated/tasks.md` - original v1 backlog draft, superseded by the GitHub issues above; kept for history only
 
 ## Stack
 
