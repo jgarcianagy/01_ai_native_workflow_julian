@@ -124,3 +124,76 @@ def test_task_can_be_created_without_completion_photo():
 
     assert task.pk is not None
     assert not task.completion_photo
+
+
+@pytest.mark.django_db
+def test_full_clean_rejects_done_task_without_completion_photo():
+    task = MaintenanceTask(
+        title="Fix leaky faucet",
+        description="Faucet in room 204 bathroom is dripping constantly.",
+        location="Room 204",
+        status=MaintenanceTask.Status.DONE,
+        priority=MaintenanceTask.Priority.NORMAL,
+        issue_photo=make_test_image(),
+    )
+
+    with pytest.raises(ValidationError) as exc_info:
+        task.full_clean()
+
+    assert "completion_photo" in exc_info.value.message_dict
+    assert "completion photo" in str(exc_info.value.message_dict["completion_photo"])
+
+
+@pytest.mark.django_db
+def test_full_clean_accepts_done_task_with_completion_photo():
+    task = MaintenanceTask(
+        title="Fix leaky faucet",
+        description="Faucet in room 204 bathroom is dripping constantly.",
+        location="Room 204",
+        status=MaintenanceTask.Status.DONE,
+        priority=MaintenanceTask.Priority.NORMAL,
+        issue_photo=make_test_image(),
+        completion_photo=make_test_image("completion.png"),
+    )
+
+    task.full_clean()
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize(
+    "status",
+    [MaintenanceTask.Status.OPEN, MaintenanceTask.Status.IN_PROGRESS],
+)
+def test_full_clean_accepts_non_done_task_without_completion_photo(status):
+    task = MaintenanceTask(
+        title="Fix leaky faucet",
+        description="Faucet in room 204 bathroom is dripping constantly.",
+        location="Room 204",
+        status=status,
+        priority=MaintenanceTask.Priority.NORMAL,
+        issue_photo=make_test_image(),
+    )
+
+    task.full_clean()
+
+
+@pytest.mark.django_db
+def test_full_clean_still_enforces_rule_after_unrelated_field_edit():
+    task = MaintenanceTask.objects.create(
+        title="Fix leaky faucet",
+        description="Faucet in room 204 bathroom is dripping constantly.",
+        location="Room 204",
+        status=MaintenanceTask.Status.DONE,
+        priority=MaintenanceTask.Priority.NORMAL,
+        issue_photo=make_test_image(),
+        completion_photo=make_test_image("completion.png"),
+    )
+
+    task.title = "Fix leaky faucet (updated)"
+    task.full_clean()
+
+    task.completion_photo = None
+    with pytest.raises(ValidationError) as exc_info:
+        task.full_clean()
+
+    assert "completion_photo" in exc_info.value.message_dict

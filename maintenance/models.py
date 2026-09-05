@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -38,3 +39,15 @@ class MaintenanceTask(models.Model):
 
     def __str__(self):
         return self.title
+
+    def clean(self):
+        super().clean()
+        if self.status == self.Status.DONE and not self.completion_photo:
+            raise ValidationError(
+                {
+                    "completion_photo": (
+                        "A completion photo is required before a task can be "
+                        "marked Done."
+                    )
+                }
+            )
