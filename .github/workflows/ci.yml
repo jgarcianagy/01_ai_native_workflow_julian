@@ -1,0 +1,62 @@
+name: CI
+
+# Runs the full pytest suite against a real Postgres database (not the
+# SQLite `config.settings_test` used for local/sandboxed dev) on every push
+# and pull request targeting `main`. See issue #17 for the design rationale.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: hotel_maintenance
+          POSTGRES_USER: hotel_maintenance
+          POSTGRES_PASSWORD: hotel_maintenance
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DB_NAME: hotel_maintenance
+      DB_USER: hotel_maintenance
+      DB_PASSWORD: hotel_maintenance
+      DB_HOST: localhost
+      DB_PORT: 5432
+      # Throwaway CI-only database, not production -- a hardcoded placeholder
+      # is fine here (see issue #17).
+      DJANGO_SECRET_KEY: ci-placeholder-secret-key-not-for-production
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Install dependencies (including dev group)
+        run: uv sync --group dev
+
+      - name: Apply database migrations
+        run: uv run python manage.py migrate --noinput
+
+      - name: Run test suite against Postgres
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings
+        run: uv run pytest
