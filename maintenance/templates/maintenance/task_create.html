@@ -1,13 +1,11 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Log a Maintenance Task</title>
-</head>
-<body>
-    <h1>Log a Maintenance Task</h1>
+{% extends "maintenance/base.html" %}
 
+{% block title %}Log a Maintenance Task{% endblock %}
+{% block heading %}Log a Maintenance Task{% endblock %}
+
+{% block content %}
     {% if created %}
-        <p>Task created.</p>
+        <p class="success-message">Task created.</p>
     {% endif %}
 
     <form enctype="multipart/form-data" method="post">
@@ -45,5 +43,4 @@
 
         <button type="submit">Create Task</button>
     </form>
-</body>
-</html>
+{% endblock %}

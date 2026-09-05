@@ -1,22 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Hotel Maintenance Tracker</title>
-</head>
-<body>
-    <h1>Hotel Maintenance Tracker</h1>
+{% extends "maintenance/base.html" %}
 
+{% block content %}
     {% if tasks %}
-        <ul>
+        <ul class="task-list">
             {% for task in tasks %}
-                <li>
+                <li class="task-row">
                     <a href="{% url 'task_detail' task.pk %}">
                     <span>{{ task.title }}</span>
                     </a>
-                    -
-                    <span>{{ task.get_status_display }}</span>
-                    -
-                    <span>{{ task.get_priority_display }}</span>
+                    <span class="badge badge-status status-{{ task.status|lower }}">{{ task.get_status_display }}</span>
+                    <span class="badge badge-priority priority-{{ task.priority|lower }}">{{ task.get_priority_display }}</span>
                     -
                     <span>{{ task.location }}</span>
                     -
@@ -31,7 +24,6 @@
             {% endfor %}
         </ul>
     {% else %}
-        <p>No tasks yet.</p>
+        <p class="empty-state">No tasks yet.</p>
     {% endif %}
-</body>
-</html>
+{% endblock %}

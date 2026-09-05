@@ -1,0 +1,148 @@
+/* Hotel Maintenance Tracker - shared stylesheet
+   Plain, hand-written CSS. No framework, no CDN, no preprocessor. */
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #1f2937;
+    margin: 0;
+    padding: 0 1.5rem 2rem;
+    background: #f9fafb;
+}
+
+header {
+    padding: 1rem 0;
+    border-bottom: 1px solid #d1d5db;
+    margin-bottom: 1.5rem;
+}
+
+h1 {
+    font-size: 1.75rem;
+    line-height: 1.25;
+    margin: 0;
+}
+
+main {
+    max-width: 60rem;
+}
+
+a {
+    color: #1d4ed8;
+}
+
+/* --- Task list / dashboard --- */
+
+.task-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.task-row {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.empty-state {
+    font-size: 1.1rem;
+    color: #4b5563;
+    padding: 1rem 0;
+}
+
+/* --- Status / priority badges ---
+   Status badges are rounded pills. Priority badges are square tags with a
+   leading flag icon, so the two categories are distinguishable by shape and
+   icon, not just by color. */
+
+.badge {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0 0.25rem;
+}
+
+.badge-status {
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.badge-priority {
+    border-radius: 3px;
+    border: 2px solid transparent;
+    text-transform: capitalize;
+}
+
+.badge-priority::before {
+    content: "\2691\0020";
+}
+
+.status-open {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-in_progress {
+    background: #bfdbfe;
+    color: #1e3a8a;
+}
+
+.status-done {
+    background: #bbf7d0;
+    color: #14532d;
+}
+
+.priority-urgent {
+    background: #fecaca;
+    color: #7f1d1d;
+    border-color: #b91c1c;
+}
+
+.priority-normal {
+    background: #e5e7eb;
+    color: #374151;
+    border-color: #9ca3af;
+}
+
+.priority-low {
+    background: #dbeafe;
+    color: #1e3a8a;
+    border-color: #60a5fa;
+}
+
+/* --- Photos --- */
+
+.task-photo {
+    display: block;
+    max-width: 320px;
+    max-height: 320px;
+    width: auto;
+    height: auto;
+    margin-top: 0.5rem;
+    border: 1px solid #d1d5db;
+}
+
+/* --- Forms / validation errors --- */
+
+form {
+    margin-bottom: 1.5rem;
+}
+
+form div {
+    margin-bottom: 0.75rem;
+}
+
+.errorlist {
+    list-style: none;
+    margin: 0.25rem 0 0;
+    padding: 0;
+    color: #b91c1c;
+    font-weight: 700;
+}
+
+.success-message {
+    color: #14532d;
+    font-weight: 600;
+}

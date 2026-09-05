@@ -1,0 +1,15 @@
+{% load static %}<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Hotel Maintenance Tracker{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'maintenance/style.css' %}">
+</head>
+<body>
+    <header>
+        <h1>{% block heading %}Hotel Maintenance Tracker{% endblock %}</h1>
+    </header>
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

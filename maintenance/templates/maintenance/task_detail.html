@@ -1,17 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ task.title }} - Hotel Maintenance Tracker</title>
-</head>
-<body>
-    <h1>{{ task.title }}</h1>
+{% extends "maintenance/base.html" %}
 
+{% block title %}{{ task.title }} - Hotel Maintenance Tracker{% endblock %}
+{% block heading %}{{ task.title }}{% endblock %}
+
+{% block content %}
     <p>{{ task.description }}</p>
 
-    <ul>
+    <ul class="task-meta">
         <li>Location: {{ task.location }}</li>
-        <li>Status: {{ task.get_status_display }}</li>
-        <li>Priority: {{ task.get_priority_display }}</li>
+        <li>Status: <span class="badge badge-status status-{{ task.status|lower }}">{{ task.get_status_display }}</span></li>
+        <li>Priority: <span class="badge badge-priority priority-{{ task.priority|lower }}">{{ task.get_priority_display }}</span></li>
         <li>
             Technician:
             {% if task.technician %}
@@ -26,13 +24,13 @@
 
     <div>
         <p>Issue photo:</p>
-        <img src="{{ task.issue_photo.url }}" alt="Issue photo for {{ task.title }}">
+        <img class="task-photo" src="{{ task.issue_photo.url }}" alt="Issue photo for {{ task.title }}">
     </div>
 
     {% if task.completion_photo %}
         <div>
             <p>Completion photo:</p>
-            <img src="{{ task.completion_photo.url }}" alt="Completion photo for {{ task.title }}">
+            <img class="task-photo" src="{{ task.completion_photo.url }}" alt="Completion photo for {{ task.title }}">
         </div>
     {% endif %}
 
@@ -65,5 +63,4 @@
 
         <button type="submit" name="update_status" value="1">Update status</button>
     </form>
-</body>
-</html>
+{% endblock %}
